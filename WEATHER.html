@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jamshedpur Weather - IMD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        /* Header styles */
+        header {
+            background: linear-gradient(to right, #1a2980, #26d0ce);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .location {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* IMD header */
+        .imd-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .imd-logo {
+            height: 50px;
+        }
+        
+        /* Current weather section */
+        .current-weather {
+            display: flex;
+            justify-content: space-between;
+            padding: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        
+        .weather-main {
+            display: flex;
+            align-items: center;
+        }
+        
+        .temperature {
+            font-size: 4rem;
+            font-weight: 300;
+            margin-right: 20px;
+        }
+        
+        .weather-icon {
+            font-size: 4rem;
+            margin-right: 20px;
+        }
+        
+        .weather-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .weather-description {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .weather-info {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        /* Additional weather metrics */
+        .weather-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1a2980;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* Forecast section */
+        .forecast-section {
+            padding: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #1a2980;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        
+        .forecast-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding-bottom: 15px;
+        }
+        
+        .forecast-day {
+            min-width: 150px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .forecast-day:hover {
+            transform: translateY(-5px);
+        }
+        
+        .day-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a2980;
+        }
+        
+        .forecast-icon {
+            font-size: 2.5rem;
+            margin: 10px 0;
+        }
+        
+        .forecast-temp {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .forecast-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* Detailed forecast section */
+        .detailed-forecast {
+            margin-top: 30px;
+        }
+        
+        .forecast-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .forecast-date {
+            font-weight: 600;
+            color: #1a2980;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .forecast-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .forecast-text {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .forecast-warning {
+            flex: 1;
+            min-width: 250px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .loading i {
+            margin-right: 10px;
+        }
+        
+        /* Last updated */
+        .last-updated {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9rem;
+            color: #666;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        /* Error state */
+        .error {
+            text-align: center;
+            padding: 20px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 5px;
+            margin: 20px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .current-weather {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .weather-main {
+                margin-bottom: 20px;
+            }
+            
+            .temperature {
+                font-size: 3rem;
+            }
+            
+            .weather-icon {
+                font-size: 3rem;
+            }
+            
+            .forecast-day {
+                min-width: 120px;
+            }
+            
+            .imd-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .temperature {
+                font-size: 2.5rem;
+            }
+            
+            .forecast-day {
+                min-width: 100px;
+                padding: 10px;
+            }
+            
+            .weather-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* Refresh button */
+        .refresh-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* City selector */
+        .city-selector {
+            padding: 10px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .city-btn {
+            padding: 8px 15px;
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .city-btn:hover, .city-btn.active {
+            background: #1a2980;
+            color: white;
+        }
+        
+        /* Data source info */
+        .data-source {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: #888;
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="imd-header">
+            <img src="https://city.imd.gov.in/citywx/responsive/assets/images/logo.png" alt="IMD Logo" class="imd-logo">
+            <h2>India Meteorological Department - Jamshedpur Weather</h2>
+        </div>
+        
+        <header>
+            <h1>Jamshedpur Weather Report & Forecast</h1>
+            <div class="location" id="location">Jamshedpur, Jharkhand, India</div>
+            <button class="refresh-btn" id="refresh-btn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </header>
+        
+        <div class="city-selector">
+            <button class="city-btn active" data-city="Jamshedpur">Jamshedpur</button>
+            <button class="city-btn" data-city="Ranchi">Ranchi</button>
+            <button class="city-btn" data-city="Dhanbad">Dhanbad</button>
+            <button class="city-btn" data-city="Bokaro">Bokaro</button>
+        </div>
+        
+        <section class="current-weather">
+            <div class="weather-main">
+                <div class="temperature" id="current-temp">--°</div>
+                <div class="weather-icon" id="weather-icon">⛅</div>
+                <div class="weather-details">
+                    <div class="weather-description" id="weather-desc">Loading weather data...</div>
+                    <div class="weather-info">
+                        <div class="info-item">
+                            <span class="info-label">Humidity</span>
+                            <span class="info-value" id="humidity">--%</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Wind</span>
+                            <span class="info-value" id="wind">-- km/h</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Feels Like</span>
+                            <span class="info-value" id="feels-like">--°</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="weather-metrics">
+            <div class="metric-card">
+                <div class="metric-label">Sunrise</div>
+                <div class="metric-value" id="sunrise">--:--</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Sunset</div>
+                <div class="metric-value" id="sunset">--:--</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Pressure</div>
+                <div class="metric-value" id="pressure">-- hPa</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Visibility</div>
+                <div class="metric-value" id="visibility">-- km</div>
+            </div>
+        </div>
+        
+        <section class="forecast-section">
+            <h2 class="section-title">7-Day Forecast</h2>
+            <div class="loading" id="forecast-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading forecast data from IMD...
+            </div>
+            <div class="forecast-container" id="weekly-forecast">
+                <!-- Forecast days will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="detailed-forecast">
+                <h2 class="section-title">Detailed Forecast</h2>
+                <div id="detailed-forecast">
+                    <!-- Detailed forecast will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </section>
+        
+        <div class="data-source">
+            Data source: India Meteorological Department (https://city.imd.gov.in/citywx/responsive/)
+        </div>
+        
+        <div class="last-updated">
+            Last Updated: <span id="last-updated-time">--</span>
+        </div>
+        
+        <footer>
+            <p>© 2025 All rights reserved. Developed by IT Team</p>
+            <p>Institutionalized Department, McKib, Jamshedpur, India</p>
+        </footer>
+    </div>
+
+    <script>
+        // Jamshedpur weather data (sample data - in real implementation would come from IMD API)
+        const jamshedpurWeatherData = {
+            location: "Jamshedpur, Jharkhand, India",
+            current: {
+                temperature: 29,
+                feelsLike: 32,
+                humidity: 75,
+                wind: 10,
+                description: "Partly cloudy with chance of thunderstorms",
+                icon: "⛅",
+                sunrise: "05:45 AM",
+                sunset: "06:15 PM",
+                pressure: "1012 hPa",
+                visibility: "8 km"
+            },
+            forecast: [
+                {
+                    day: "26-SEPT",
+                    high: 32,
+                    low: 24,
+                    humidity: 80,
+                    description: "Generally cloudy sky with possibility of rain or thunderstorm",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-30km/h)",
+                    icon: "⛈️"
+                },
+                {
+                    day: "27-SEPT",
+                    high: 31,
+                    low: 23,
+                    humidity: 78,
+                    description: "Generally cloudy sky with one or two spells of rain or thunderstorms",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-25km/h)",
+                    icon: "🌧️"
+                },
+                {
+                    day: "28-SEPT",
+                    high: 30,
+                    low: 23,
+                    humidity: 82,
+                    description: "Generally cloudy sky with one or two spells of rain or thunderstorms",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-20km/h)",
+                    icon: "🌧️"
+                },
+                {
+                    day: "29-SEPT",
+                    high: 31,
+                    low: 24,
+                    humidity: 79,
+                    description: "Generally cloudy sky with one or two spells of rain or thunderstorms",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-25km/h)",
+                    icon: "🌧️"
+                },
+                {
+                    day: "30-SEPT",
+                    high: 32,
+                    low: 24,
+                    humidity: 76,
+                    description: "Generally cloudy sky with possibility of rain or thunderstorm",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-30km/h)",
+                    icon: "⛈️"
+                },
+                {
+                    day: "1-OCT",
+                    high: 33,
+                    low: 25,
+                    humidity: 72,
+                    description: "Generally cloudy sky with possibility of rain or thunderstorm",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-35km/h)",
+                    icon: "⛈️"
+                },
+                {
+                    day: "2-OCT",
+                    high: 32,
+                    low: 24,
+                    humidity: 74,
+                    description: "Partly cloudy sky in the morning hours becoming generally cloudy sky towards afternoon or evening with possibility of rain or thunderstorms",
+                    warning: "No warning",
+                    icon: "🌤️"
+                }
+            ]
+        };
+
+        // Function to update the UI with weather data
+        function updateWeatherUI(data) {
+            // Update location
+            document.getElementById('location').textContent = data.location;
+            
+            // Update current weather
+            document.getElementById('current-temp').textContent = `${data.current.temperature}°`;
+            document.getElementById('weather-icon').textContent = data.current.icon;
+            document.getElementById('weather-desc').textContent = data.current.description;
+            document.getElementById('humidity').textContent = `${data.current.humidity}%`;
+            document.getElementById('wind').textContent = `${data.current.wind} km/h`;
+            document.getElementById('feels-like').textContent = `${data.current.feelsLike}°`;
+            
+            // Update weather metrics
+            document.getElementById('sunrise').textContent = data.current.sunrise;
+            document.getElementById('sunset').textContent = data.current.sunset;
+            document.getElementById('pressure').textContent = data.current.pressure;
+            document.getElementById('visibility').textContent = data.current.visibility;
+            
+            // Update weekly forecast
+            const weeklyForecastContainer = document.getElementById('weekly-forecast');
+            weeklyForecastContainer.innerHTML = '';
+            
+            data.forecast.forEach(day => {
+                const forecastDayElement = document.createElement('div');
+                forecastDayElement.className = 'forecast-day';
+                forecastDayElement.innerHTML = `
+                    <div class="day-name">${day.day}</div>
+                    <div class="forecast-icon">${day.icon}</div>
+                    <div class="forecast-temp">${day.high}° / ${day.low}°</div>
+                    <div class="forecast-desc">Humidity: ${day.humidity}%</div>
+                `;
+                weeklyForecastContainer.appendChild(forecastDayElement);
+            });
+            
+            // Update detailed forecast
+            const detailedForecastContainer = document.getElementById('detailed-forecast');
+            detailedForecastContainer.innerHTML = '';
+            
+            data.forecast.forEach(day => {
+                const forecastItemElement = document.createElement('div');
+                forecastItemElement.className = 'forecast-item';
+                forecastItemElement.innerHTML = `
+                    <div class="forecast-date">
+                        <span>${day.day}</span>
+                        <span>${day.high}° / ${day.low}°</span>
+                    </div>
+                    <div class="forecast-content">
+                        <div class="forecast-text">
+                            <p><strong>Forecast:</strong> ${day.description}</p>
+                        </div>
+                        <div class="forecast-warning">
+                            <p><strong>Warning:</strong> ${day.warning}</p>
+                        </div>
+                    </div>
+                `;
+                detailedForecastContainer.appendChild(forecastItemElement);
+            });
+            
+            // Update last updated time
+            const now = new Date();
+            document.getElementById('last-updated-time').textContent = 
+                `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+                
+            // Hide loading indicator
+            document.getElementById('forecast-loading').style.display = 'none';
+        }
+
+        // Function to fetch data from IMD (simulated due to CORS restrictions)
+        function fetchIMDWeatherData(city) {
+            // Show loading indicator
+            document.getElementById('forecast-loading').style.display = 'block';
+            document.getElementById('weekly-forecast').innerHTML = '';
+            document.getElementById('detailed-forecast').innerHTML = '';
+            
+            // In a real implementation, this would fetch from:
+            // https://city.imd.gov.in/citywx/responsive/
+            // But due to CORS restrictions, we need a proxy server
+            
+            // Simulate API delay
+            setTimeout(() => {
+                // For demonstration, we'll use sample data
+                // In a real implementation, you would parse the HTML response from IMD
+                const sampleData = {
+                    ...jamshedpurWeatherData,
+                    location: `${city}, Jharkhand, India`
+                };
+                
+                updateWeatherUI(sampleData);
+            }, 1500);
+        }
+
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up city selector
+            const cityButtons = document.querySelectorAll('.city-btn');
+            
+            cityButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    cityButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update weather for selected city
+                    const city = this.getAttribute('data-city');
+                    document.getElementById('location').textContent = `${city}, Jharkhand, India`;
+                    fetchIMDWeatherData(city);
+                });
+            });
+            
+            // Load initial data for Jamshedpur
+            fetchIMDWeatherData('Jamshedpur');
+            
+            // Set up refresh button
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                const activeCity = document.querySelector('.city-btn.active').getAttribute('data-city');
+                this.querySelector('i').classList.add('fa-spin');
+                fetchIMDWeatherData(activeCity);
+                
+                // Remove spin class after animation completes
+                setTimeout(() => {
+                    this.querySelector('i').classList.remove('fa-spin');
+                }, 1500);
+            });
+        });
+
+        // Function to demonstrate how to fetch from IMD with a proxy
+        // This would need to be implemented on a server due to CORS restrictions
+        async function fetchIMDDataWithProxy(city) {
+            try {
+                // This is a conceptual example - you would need to set up your own proxy server
+                const proxyUrl = 'https://your-proxy-server.com/imd-data'; // Your proxy endpoint
+                const response = await fetch(`${proxyUrl}?city=${encodeURIComponent(city)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data from IMD');
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching IMD data:', error);
+                // Fallback to sample data
+                return jamshedpurWeatherData;
+            }
+        }
+    </script>
+</body>
+</html>
