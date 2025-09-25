@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RailYatri API - Jharkhand Railway Routes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        /* Header styles */
+        header {
+            background: linear-gradient(to right, #1a2980, #26d0ce);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .railyatri-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        /* Main content */
+        .main-content {
+            padding: 30px;
+        }
+        
+        .api-demo {
+            margin-top: 20px;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            border-left: 4px solid #1a2980;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #1a2980;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .demo-title i {
+            color: #26d0ce;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        input, select {
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            background: #1a2980;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #26d0ce;
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .api-response {
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .response-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .response-title {
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        .response-body {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+        
+        .train-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .train-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .train-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .train-number {
+            font-weight: 600;
+            color: #1a2980;
+            font-size: 1.1rem;
+        }
+        
+        .train-name {
+            font-weight: 500;
+        }
+        
+        .train-timing {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .station {
+            text-align: center;
+        }
+        
+        .station-name {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .station-time {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        .duration {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .train-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+        
+        .loading i {
+            margin-right: 10px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        /* Autocomplete */
+        .autocomplete {
+            position: relative;
+        }
+        
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .autocomplete-active {
+            background-color: #1a2980 !important;
+            color: #ffffff;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .train-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .train-timing {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RailYatri API - Jharkhand Railway Routes</h1>
+            <div class="subtitle">
+                Search for trains connecting Jharkhand with other cities. Either source or destination must be in Jharkhand.
+            </div>
+            <div class="railyatri-badge">
+                <i class="fas fa-train"></i> Powered by RailYatri API
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="api-demo">
+                <div class="demo-card">
+                    <div class="demo-title">
+                        <i class="fas fa-train"></i> Trains Between Cities
+                    </div>
+                    <p>Search for trains connecting Jharkhand with other cities. Either source or destination must be in Jharkhand.</p>
+                    
+                    <div class="search-form">
+                        <div class="form-group autocomplete">
+                            <label for="from-city">From City</label>
+                            <input type="text" id="from-city" placeholder="e.g., Ranchi">
+                        </div>
+                        <div class="form-group autocomplete">
+                            <label for="to-city">To City</label>
+                            <input type="text" id="to-city" placeholder="e.g., New Delhi">
+                        </div>
+                        <div class="form-group">
+                            <label for="travel-date">Travel Date</label>
+                            <input type="date" id="travel-date">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn" id="search-trains-btn">
+                                <i class="fas fa-search"></i> Search Trains
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="api-response">
+                        <div class="response-header">
+                            <div class="response-title">API Response</div>
+                            <div id="response-status">Ready to search</div>
+                        </div>
+                        <div class="response-body" id="trains-response">
+                            <div class="loading" id="trains-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Fetching live train data from RailYatri...
+                            </div>
+                            <div id="trains-results">
+                                <!-- Train results will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 RailYatri API Integration Demo | Data provided by RailYatri</p>
+            <p>Note: This is a demonstration. For production use, please check RailYatri's terms of service.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Set default date to tomorrow
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('travel-date').value = tomorrow.toISOString().split('T')[0];
+        
+        // Format date as DD-MM-YYYY for RailYatri API
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+        
+        // City to station code mapping
+        const cityToStationMap = {
+            // Jharkhand cities
+            "ranchi": { code: "RNC", state: "Jharkhand" },
+            "hatia": { code: "HTE", state: "Jharkhand" },
+            "bokaro": { code: "BKSC", state: "Jharkhand" },
+            "dhanbad": { code: "DHN", state: "Jharkhand" },
+            "jamshedpur": { code: "TATA", state: "Jharkhand" },
+            "deoghar": { code: "DGHR", state: "Jharkhand" },
+            "hazaribagh": { code: "HZD", state: "Jharkhand" },
+            "giridih": { code: "GRD", state: "Jharkhand" },
+            "kodarma": { code: "KQR", state: "Jharkhand" },
+            
+            // Other cities
+            "new delhi": { code: "NDLS", state: "Delhi" },
+            "howrah": { code: "HWH", state: "West Bengal" },
+            "kolkata": { code: "KOAA", state: "West Bengal" },
+            "patna": { code: "PNBE", state: "Bihar" },
+            "ranchi junction": { code: "RNC", state: "Jharkhand" },
+            "hatia junction": { code: "HTE", state: "Jharkhand" },
+            "bokaro steel city": { code: "BKSC", state: "Jharkhand" },
+            "dhanbad junction": { code: "DHN", state: "Jharkhand" },
+            "tatanagar junction": { code: "TATA", state: "Jharkhand" },
+            "new delhi railway station": { code: "NDLS", state: "Delhi" },
+            "howrah junction": { code: "HWH", state: "West Bengal" },
+            "kolkata railway station": { code: "KOAA", state: "West Bengal" },
+            "patna junction": { code: "PNBE", state: "Bihar" },
+            "mumbai": { code: "BCT", state: "Maharashtra" },
+            "chennai": { code: "MAS", state: "Tamil Nadu" },
+            "bangalore": { code: "SBC", state: "Karnataka" },
+            "hyderabad": { code: "HYB", state: "Telangana" },
+            "ahmedabad": { code: "ADI", state: "Gujarat" },
+            "pune": { code: "PUNE", state: "Maharashtra" },
+            "jaipur": { code: "JP", state: "Rajasthan" },
+            "lucknow": { code: "LKO", state: "Uttar Pradesh" },
+            "kanpur": { code: "CNB", state: "Uttar Pradesh" },
+            "varanasi": { code: "BSB", state: "Uttar Pradesh" }
+        };
+        
+        // Function to get station code and state from city name
+        function getStationInfo(cityName) {
+            const normalizedCityName = cityName.toLowerCase().trim();
+            return cityToStationMap[normalizedCityName] || null;
+        }
+        
+        // Function to check if a city is in Jharkhand
+        function isJharkhandCity(cityName) {
+            const info = getStationInfo(cityName);
+            return info && info.state === "Jharkhand";
+        }
+        
+        // Autocomplete functionality
+        function autocomplete(inp, arr) {
+            let currentFocus;
+            
+            inp.addEventListener("input", function(e) {
+                let val = this.value;
+                closeAllLists();
+                if (!val) { return false; }
+                currentFocus = -1;
+                
+                const list = document.createElement("DIV");
+                list.setAttribute("id", this.id + "autocomplete-list");
+                list.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(list);
+                
+                for (let i = 0; i < arr.length; i++) {
+                    if (arr[i].substr(0, val.length).toLowerCase() === val.toLowerCase()) {
+                        const item = document.createElement("DIV");
+                        item.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        item.innerHTML += arr[i].substr(val.length);
+                        item.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        
+                        item.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        list.appendChild(item);
+                    }
+                }
+            });
+            
+            inp.addEventListener("keydown", function(e) {
+                let list = document.getElementById(this.id + "autocomplete-list");
+                if (list) list = list.getElementsByTagName("div");
+                if (e.keyCode === 40) { // Down arrow
+                    currentFocus++;
+                    addActive(list);
+                } else if (e.keyCode === 38) { // Up arrow
+                    currentFocus--;
+                    addActive(list);
+                } else if (e.keyCode === 13) { // Enter
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (list) list[currentFocus].click();
+                    }
+                }
+            });
+            
+            function addActive(list) {
+                if (!list) return false;
+                removeActive(list);
+                if (currentFocus >= list.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (list.length - 1);
+                list[currentFocus].classList.add("autocomplete-active");
+            }
+            
+            function removeActive(list) {
+                for (let i = 0; i < list.length; i++) {
+                    list[i].classList.remove("autocomplete-active");
+                }
+            }
+            
+            function closeAllLists(elmnt) {
+                const lists = document.getElementsByClassName("autocomplete-items");
+                for (let i = 0; i < lists.length; i++) {
+                    if (elmnt !== lists[i] && elmnt !== inp) {
+                        lists[i].parentNode.removeChild(lists[i]);
+                    }
+                }
+            }
+            
+            document.addEventListener("click", function(e) {
+                closeAllLists(e.target);
+            });
+        }
+        
+        // Initialize autocomplete for city inputs
+        const cities = Object.keys(cityToStationMap).map(city => {
+            return city.charAt(0).toUpperCase() + city.slice(1);
+        });
+        
+        autocomplete(document.getElementById("from-city"), cities);
+        autocomplete(document.getElementById("to-city"), cities);
+        
+        // Search trains function
+        document.getElementById('search-trains-btn').addEventListener('click', function() {
+            const fromCity = document.getElementById('from-city').value;
+            const toCity = document.getElementById('to-city').value;
+            const travelDate = document.getElementById('travel-date').value;
+            
+            if (!fromCity || !toCity || !travelDate) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Validate Jharkhand condition
+            const fromIsJharkhand = isJharkhandCity(fromCity);
+            const toIsJharkhand = isJharkhandCity(toCity);
+            
+            if (!fromIsJharkhand && !toIsJharkhand) {
+                document.getElementById('trains-results').innerHTML = `
+                    <div class="warning">
+                        <strong>Route Validation Required:</strong> Either source or destination must be in Jharkhand.
+                        <br>Please select at least one Jharkhand city.
+                    </div>
+                `;
+                document.getElementById('response-status').textContent = 'Validation failed';
+                return;
+            }
+            
+            if (fromIsJharkhand && toIsJharkhand) {
+                document.getElementById('trains-results').innerHTML = `
+                    <div class="warning">
+                        <strong>Route Validation Required:</strong> Both source and destination cannot be in Jharkhand.
+                        <br>Please select one Jharkhand city and one city from another state.
+                    </div>
+                `;
+                document.getElementById('response-status').textContent = 'Validation failed';
+                return;
+            }
+            
+            // Get station codes from city names
+            const fromStationInfo = getStationInfo(fromCity);
+            const toStationInfo = getStationInfo(toCity);
+            
+            if (!fromStationInfo) {
+                alert(`Could not find station code for city: ${fromCity}. Please try a different city name.`);
+                return;
+            }
+            
+            if (!toStationInfo) {
+                alert(`Could not find station code for city: ${toCity}. Please try a different city name.`);
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('trains-loading').style.display = 'block';
+            document.getElementById('trains-results').innerHTML = '';
+            document.getElementById('response-status').textContent = 'Fetching data...';
+            
+            // Make API call to RailYatri
+            const formattedDate = formatDate(travelDate);
+            const apiUrl = `https://railapi.railyatri.in/api/v2/trainsBetweenStations?from=${fromStationInfo.code}&to=${toStationInfo.code}&date=${formattedDate}`;
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('trains-loading').style.display = 'none';
+                    
+                    if (data.status === 'success' && data.trains && data.trains.length > 0) {
+                        let html = `
+                            <div class="success">
+                                Found ${data.trains.length} trains from ${fromCity} (${fromStationInfo.code}) to ${toCity} (${toStationInfo.code})
+                            </div>
+                            <div class="train-list">
+                        `;
+                        
+                        data.trains.forEach(train => {
+                            html += `
+                                <div class="train-card">
+                                    <div class="train-header">
+                                        <div class="train-number">${train.number}</div>
+                                        <div class="train-name">${train.name}</div>
+                                    </div>
+                                    <div class="train-timing">
+                                        <div class="station">
+                                            <div class="station-name">${train.src_name} (${train.src})</div>
+                                            <div class="station-time">${train.src_departure_time}</div>
+                                        </div>
+                                        <div class="duration">${train.travel_time}</div>
+                                        <div class="station">
+                                            <div class="station-name">${train.dest_name} (${train.dest})</div>
+                                            <div class="station-time">${train.dest_arrival_time}</div>
+                                        </div>
+                                    </div>
+                                    <div class="train-details">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Running Days</span>
+                                            <span class="detail-value">${train.running_days ? train.running_days.join(', ') : 'Daily'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Travel Date</span>
+                                            <span class="detail-value">${travelDate}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                        document.getElementById('trains-results').innerHTML = html;
+                        document.getElementById('response-status').textContent = `${data.trains.length} trains found`;
+                    } else {
+                        document.getElementById('trains-results').innerHTML = `
+                            <div class="error">
+                                No direct trains found between ${fromCity} (${fromStationInfo.code}) and ${toCity} (${toStationInfo.code}) on ${travelDate}.
+                            </div>
+                        `;
+                        document.getElementById('response-status').textContent = 'No trains found';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('trains-loading').style.display = 'none';
+                    document.getElementById('trains-results').innerHTML = `
+                        <div class="error">
+                            Error fetching train data: ${error.message}
+                            <br><br>Note: This demo uses a free API that may have limitations. For a production application, you would need to use a paid API service.
+                        </div>
+                    `;
+                    document.getElementById('response-status').textContent = 'Error fetching data';
+                });
+        });
+    </script>
+</body>
+</html>
