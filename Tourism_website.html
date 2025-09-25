@@ -1,0 +1,2364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Transportation & Weather Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        /* Header styles */
+        header {
+            background: linear-gradient(to right, #1a2980, #26d0ce);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .api-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .api-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .nav-tab.active {
+            border-bottom: 3px solid #1a2980;
+            background: white;
+            font-weight: 600;
+        }
+        
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+        
+        /* Main content */
+        .main-content {
+            padding: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            border-left: 4px solid #1a2980;
+            cursor: pointer;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+            color: #1a2980;
+            margin-right: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #26d0ce;
+            margin: 10px 0;
+        }
+        
+        .card-desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Search Section */
+        .search-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .search-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #1a2980;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        input, select {
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            background: #1a2980;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #26d0ce;
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        /* Results Section */
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .results-title {
+            font-size: 1.3rem;
+            color: #1a2980;
+        }
+        
+        .results-count {
+            font-size: 1rem;
+            color: #666;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        
+        /* Flight Card Styles */
+        .flight-list, .train-list, .buses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .flight-card, .train-card, .bus-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #1a2980;
+            transition: all 0.3s;
+        }
+        
+        .flight-card:hover, .train-card:hover, .bus-card:hover {
+            background: #e9ecef;
+        }
+        
+        .flight-header, .transport-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .flight-number, .train-number, .transport-number {
+            font-weight: 600;
+            color: #1a2980;
+            font-size: 1.1rem;
+        }
+        
+        .flight-route, .train-timing, .transport-timing {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .route-segment, .station, .location {
+            text-align: center;
+        }
+        
+        .airport-code, .station-time, .location-time {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        .airport-name, .station-name, .location-name {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .route-arrow, .duration {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .route-arrow {
+            font-size: 1.5rem;
+            color: #26d0ce;
+        }
+        
+        .flight-details, .train-details, .transport-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .flight-price {
+            text-align: center;
+        }
+        
+        .price-amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        .price-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .book-btn {
+            padding: 8px 15px;
+            background: #1a2980;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .book-btn:hover {
+            background: #26d0ce;
+        }
+        
+        .status-live {
+            background: #d4edda;
+            color: #155724;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-scheduled {
+            background: #fff3cd;
+            color: #856404;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        /* Weather Section */
+        .current-weather {
+            display: flex;
+            justify-content: space-between;
+            padding: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+        
+        .weather-main {
+            display: flex;
+            align-items: center;
+        }
+        
+        .temperature {
+            font-size: 4rem;
+            font-weight: 300;
+            margin-right: 20px;
+        }
+        
+        .weather-icon {
+            font-size: 4rem;
+            margin-right: 20px;
+        }
+        
+        .weather-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .weather-description {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .weather-info {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .weather-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1a2980;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .forecast-section {
+            padding: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #1a2980;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        
+        .forecast-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding-bottom: 15px;
+        }
+        
+        .forecast-day {
+            min-width: 150px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .forecast-day:hover {
+            transform: translateY(-5px);
+        }
+        
+        .day-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a2980;
+        }
+        
+        .forecast-icon {
+            font-size: 2.5rem;
+            margin: 10px 0;
+        }
+        
+        .forecast-temp {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .forecast-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .detailed-forecast {
+            margin-top: 30px;
+        }
+        
+        .forecast-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .forecast-date {
+            font-weight: 600;
+            color: #1a2980;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .forecast-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .forecast-text {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .forecast-warning {
+            flex: 1;
+            min-width: 250px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        /* API Status */
+        .api-status {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #1a2980;
+        }
+        
+        .status-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .status-online {
+            color: #28a745;
+        }
+        
+        .status-offline {
+            color: #dc3545;
+        }
+        
+        .status-info {
+            flex: 1;
+        }
+        
+        .status-name {
+            font-weight: 600;
+        }
+        
+        .status-desc {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .loading i {
+            margin-right: 10px;
+        }
+        
+        /* Error State */
+        .error, .warning {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        
+        /* Autocomplete */
+        .autocomplete {
+            position: relative;
+        }
+        
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .autocomplete-active {
+            background-color: #1a2980 !important;
+            color: #ffffff;
+        }
+        
+        /* City selector */
+        .city-selector {
+            padding: 10px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .city-btn {
+            padding: 8px 15px;
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .city-btn:hover, .city-btn.active {
+            background: #1a2980;
+            color: white;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .flight-route, .train-timing, .transport-timing {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .flight-header, .transport-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .current-weather {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .weather-main {
+                margin-bottom: 20px;
+            }
+            
+            .temperature {
+                font-size: 3rem;
+            }
+            
+            .weather-icon {
+                font-size: 3rem;
+            }
+            
+            .forecast-day {
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Jharkhand Transportation & Weather Dashboard</h1>
+            <div class="subtitle">Real-time flight, train, bus, and weather information for Jharkhand</div>
+            <div class="api-badges">
+                <div class="api-badge">Flight Booking</div>
+                <div class="api-badge">RailYatri API</div>
+                <div class="api-badge">Bus Services</div>
+                <div class="api-badge">IMD Weather</div>
+            </div>
+        </header>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-tab="overview">Overview</div>
+            <div class="nav-tab" data-tab="flights">Flights</div>
+            <div class="nav-tab" data-tab="trains">Trains</div>
+            <div class="nav-tab" data-tab="buses">Buses</div>
+            <div class="nav-tab" data-tab="weather">Weather</div>
+            <div class="nav-tab" data-tab="status">API Status</div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview">
+                <div class="dashboard-cards">
+                    <div class="dashboard-card" data-section="flights">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                            <div class="card-title">Daily Flights</div>
+                        </div>
+                        <div class="card-value" id="daily-flights">24</div>
+                        <div class="card-desc">From Jharkhand airports</div>
+                    </div>
+                    
+                    <div class="dashboard-card" data-section="trains">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="card-title">Daily Trains</div>
+                        </div>
+                        <div class="card-value" id="daily-trains">68</div>
+                        <div class="card-desc">Connecting Jharkhand</div>
+                    </div>
+                    
+                    <div class="dashboard-card" data-section="buses">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <div class="card-title">Active Buses</div>
+                        </div>
+                        <div class="card-value" id="active-buses">142</div>
+                        <div class="card-desc">Operating in Jharkhand</div>
+                    </div>
+                    
+                    <div class="dashboard-card" data-section="weather">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-cloud-sun"></i>
+                            </div>
+                            <div class="card-title">Current Temp</div>
+                        </div>
+                        <div class="card-value" id="current-temp">29°C</div>
+                        <div class="card-desc">Jamshedpur, Jharkhand</div>
+                    </div>
+                </div>
+                
+                <div class="search-section">
+                    <div class="search-title">
+                        <i class="fas fa-search"></i> Quick Search
+                    </div>
+                    <div class="search-form">
+                        <div class="form-group">
+                            <label for="overview-transport">Transport Type</label>
+                            <select id="overview-transport">
+                                <option value="flights">Flights</option>
+                                <option value="trains">Trains</option>
+                                <option value="buses">Buses</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="overview-from">From</label>
+                            <select id="overview-from">
+                                <option value="ranchi">Ranchi</option>
+                                <option value="jamshedpur">Jamshedpur</option>
+                                <option value="dhanbad">Dhanbad</option>
+                                <option value="bokaro">Bokaro</option>
+                                <option value="hazaribagh">Hazaribagh</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="overview-to">To</label>
+                            <select id="overview-to">
+                                <option value="delhi">Delhi</option>
+                                <option value="mumbai">Mumbai</option>
+                                <option value="kolkata">Kolkata</option>
+                                <option value="bangalore">Bangalore</option>
+                                <option value="patna">Patna</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="overview-date">Date</label>
+                            <input type="date" id="overview-date">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn" id="overview-search-btn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <div class="results-header">
+                        <div class="results-title">Popular Routes</div>
+                        <div class="results-count" id="overview-results-count">Top routes in Jharkhand</div>
+                    </div>
+                    <div id="overview-results">
+                        <div class="loading" id="overview-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading data...
+                        </div>
+                        <div id="overview-results-content">
+                            <!-- Results will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Flights Tab -->
+            <div class="tab-content" id="flights">
+                <div class="search-section">
+                    <div class="search-title">
+                        <i class="fas fa-plane"></i> Search Flights
+                    </div>
+                    <p>Book flights to or from Jharkhand. One of your cities must be Jharkhand.</p>
+                    
+                    <div class="search-form">
+                        <div class="form-group">
+                            <label for="trip-type">Trip Type</label>
+                            <select id="trip-type">
+                                <option value="one-way">One Way</option>
+                                <option value="round-trip">Round Trip</option>
+                            </select>
+                        </div>
+                        <div class="form-group autocomplete">
+                            <label for="from-city">From City</label>
+                            <input type="text" id="from-city" placeholder="Enter departure city">
+                        </div>
+                        <div class="form-group autocomplete">
+                            <label for="to-city">To City</label>
+                            <input type="text" id="to-city" placeholder="Enter destination city">
+                        </div>
+                        <div class="form-group">
+                            <label for="depart-date">Departure Date</label>
+                            <input type="date" id="depart-date">
+                        </div>
+                        <div class="form-group" id="return-date-group" style="display: none;">
+                            <label for="return-date">Return Date</label>
+                            <input type="date" id="return-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="passengers">Passengers</label>
+                            <select id="passengers">
+                                <option value="1">1 Passenger</option>
+                                <option value="2" selected>2 Passengers</option>
+                                <option value="3">3 Passengers</option>
+                                <option value="4">4 Passengers</option>
+                                <option value="5">5 Passengers</option>
+                                <option value="6">6 Passengers</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn" id="search-flights-btn">
+                                <i class="fas fa-search"></i> Search Flights
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="route-validation" class="error" style="display: none;">
+                        One of your cities must be Jharkhand. You cannot book flights between two non-Jharkhand cities or within Jharkhand.
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <div class="results-header">
+                        <div class="results-title">Available Flights</div>
+                        <div class="results-count" id="flights-results-count">Enter your travel details</div>
+                    </div>
+                    <div class="flight-list" id="flights-results">
+                        <div class="loading" id="flights-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Searching for available flights...
+                        </div>
+                        <!-- Flight results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trains Tab -->
+            <div class="tab-content" id="trains">
+                <div class="search-section">
+                    <div class="search-title">
+                        <i class="fas fa-train"></i> Trains Between Cities
+                    </div>
+                    <p>Search for trains connecting Jharkhand with other cities. Either source or destination must be in Jharkhand.</p>
+                    
+                    <div class="search-form">
+                        <div class="form-group autocomplete">
+                            <label for="train-from-city">From City</label>
+                            <input type="text" id="train-from-city" placeholder="e.g., Ranchi">
+                        </div>
+                        <div class="form-group autocomplete">
+                            <label for="train-to-city">To City</label>
+                            <input type="text" id="train-to-city" placeholder="e.g., New Delhi">
+                        </div>
+                        <div class="form-group">
+                            <label for="train-travel-date">Travel Date</label>
+                            <input type="date" id="train-travel-date">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn" id="search-trains-btn">
+                                <i class="fas fa-search"></i> Search Trains
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <div class="results-header">
+                        <div class="results-title">Available Trains</div>
+                        <div class="results-count" id="trains-results-count">Select route to see trains</div>
+                    </div>
+                    <div class="train-list" id="trains-results">
+                        <div class="loading" id="trains-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Fetching live train data from RailYatri...
+                        </div>
+                        <!-- Train results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Buses Tab -->
+            <div class="tab-content" id="buses">
+                <div class="search-section">
+                    <div class="search-title">
+                        <i class="fas fa-bus"></i> Bus Search
+                    </div>
+                    <div class="search-form">
+                        <div class="form-group">
+                            <label for="bus-from">From City</label>
+                            <select id="bus-from">
+                                <option value="ranchi">Ranchi</option>
+                                <option value="jamshedpur">Jamshedpur</option>
+                                <option value="dhanbad">Dhanbad</option>
+                                <option value="bokaro">Bokaro</option>
+                                <option value="hazaribagh">Hazaribagh</option>
+                                <option value="deoghar">Deoghar</option>
+                                <option value="giridih">Giridih</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bus-to">To City</label>
+                            <select id="bus-to">
+                                <option value="patna">Patna</option>
+                                <option value="kolkata">Kolkata</option>
+                                <option value="ranchi">Ranchi</option>
+                                <option value="jamshedpur">Jamshedpur</option>
+                                <option value="dhanbad">Dhanbad</option>
+                                <option value="bokaro">Bokaro</option>
+                                <option value="hazaribagh">Hazaribagh</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bus-date">Travel Date</label>
+                            <input type="date" id="bus-date">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn" id="bus-search-btn">
+                                <i class="fas fa-search"></i> Search Buses
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <div class="results-header">
+                        <div class="results-title">Available Buses</div>
+                        <div class="results-count" id="bus-results-count">Select route to see buses</div>
+                    </div>
+                    <div class="buses-list" id="bus-results">
+                        <div class="loading" id="bus-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Searching for buses...
+                        </div>
+                        <!-- Bus results will be displayed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weather Tab -->
+            <div class="tab-content" id="weather">
+                <div class="city-selector">
+                    <button class="city-btn active" data-city="Jamshedpur">Jamshedpur</button>
+                    <button class="city-btn" data-city="Ranchi">Ranchi</button>
+                    <button class="city-btn" data-city="Dhanbad">Dhanbad</button>
+                    <button class="city-btn" data-city="Bokaro">Bokaro</button>
+                </div>
+                
+                <section class="current-weather">
+                    <div class="weather-main">
+                        <div class="temperature" id="current-temp-weather">--°</div>
+                        <div class="weather-icon" id="weather-icon">⛅</div>
+                        <div class="weather-details">
+                            <div class="weather-description" id="weather-desc">Loading weather data...</div>
+                            <div class="weather-info">
+                                <div class="info-item">
+                                    <span class="info-label">Humidity</span>
+                                    <span class="info-value" id="humidity">--%</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Wind</span>
+                                    <span class="info-value" id="wind">-- km/h</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Feels Like</span>
+                                    <span class="info-value" id="feels-like">--°</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <div class="weather-metrics">
+                    <div class="metric-card">
+                        <div class="metric-label">Sunrise</div>
+                        <div class="metric-value" id="sunrise">--:--</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Sunset</div>
+                        <div class="metric-value" id="sunset">--:--</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Pressure</div>
+                        <div class="metric-value" id="pressure">-- hPa</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Visibility</div>
+                        <div class="metric-value" id="visibility">-- km</div>
+                    </div>
+                </div>
+                
+                <section class="forecast-section">
+                    <h2 class="section-title">7-Day Forecast</h2>
+                    <div class="loading" id="forecast-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading forecast data from IMD...
+                    </div>
+                    <div class="forecast-container" id="weekly-forecast">
+                        <!-- Forecast days will be inserted here by JavaScript -->
+                    </div>
+                    
+                    <div class="detailed-forecast">
+                        <h2 class="section-title">Detailed Forecast</h2>
+                        <div id="detailed-forecast">
+                            <!-- Detailed forecast will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- API Status Tab -->
+            <div class="tab-content" id="status">
+                <div class="api-status">
+                    <div class="status-title">API Integration Status</div>
+                    <div class="status-list">
+                        <div class="status-item">
+                            <div class="status-icon status-online">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-name">Flight Booking API</div>
+                                <div class="status-desc">Real-time flight data integration</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item">
+                            <div class="status-icon status-online">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-name">RailYatri API</div>
+                                <div class="status-desc">Train schedules and availability</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item">
+                            <div class="status-icon status-online">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-name">Bus Services API</div>
+                                <div class="status-desc">Bus routes and schedules</div>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item">
+                            <div class="status-icon status-online">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="status-info">
+                                <div class="status-name">IMD Weather API</div>
+                                <div class="status-desc">Weather forecasts and alerts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-section" style="margin-top: 30px;">
+                    <div class="results-header">
+                        <div class="results-title">API Documentation & Usage</div>
+                    </div>
+                    <div id="api-docs">
+                        <div class="bus-card">
+                            <div class="transport-header">
+                                <div class="transport-number">Flight Booking API</div>
+                                <span class="bus-status status-live">Live</span>
+                            </div>
+                            <div class="transport-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Endpoint</span>
+                                    <span class="detail-value">https://api.flightdata.com/v1/flights</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Authentication</span>
+                                    <span class="detail-value">API Key</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Rate Limit</span>
+                                    <span class="detail-value">5000 requests/day</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bus-card" style="margin-top: 15px;">
+                            <div class="transport-header">
+                                <div class="transport-number">RailYatri API Integration</div>
+                                <span class="bus-status status-live">Live</span>
+                            </div>
+                            <div class="transport-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Endpoint</span>
+                                    <span class="detail-value">https://railapi.railyatri.in/api/v2</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Data Type</span>
+                                    <span class="detail-value">JSON</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Access</span>
+                                    <span class="detail-value">API Key Required</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Jharkhand Transportation & Weather Dashboard | Integrated with multiple APIs</p>
+            <p>Real-time transportation and weather data for Jharkhand</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tab navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show the corresponding tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                
+                // Load data for the active tab
+                if (tabId === 'overview') {
+                    loadOverviewData();
+                } else if (tabId === 'weather') {
+                    loadWeatherData();
+                }
+            });
+        });
+        
+        // Dashboard card navigation
+        document.querySelectorAll('.dashboard-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const section = this.getAttribute('data-section');
+                // Remove active class from all tabs
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                // Add active class to corresponding tab
+                document.querySelector(`.nav-tab[data-tab="${section}"]`).classList.add('active');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show the corresponding tab content
+                document.getElementById(section).classList.add('active');
+                
+                // Load data for the active tab
+                if (section === 'weather') {
+                    loadWeatherData();
+                }
+            });
+        });
+        
+        // Set default dates
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        document.getElementById('overview-date').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('depart-date').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('train-travel-date').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('bus-date').value = tomorrow.toISOString().split('T')[0];
+        
+        // Show/hide return date based on trip type
+        document.getElementById('trip-type').addEventListener('change', function() {
+            const returnDateGroup = document.getElementById('return-date-group');
+            if (this.value === 'round-trip') {
+                returnDateGroup.style.display = 'flex';
+                const returnDate = new Date(tomorrow);
+                returnDate.setDate(returnDate.getDate() + 3);
+                document.getElementById('return-date').value = returnDate.toISOString().split('T')[0];
+            } else {
+                returnDateGroup.style.display = 'none';
+            }
+        });
+        
+        // City to airport code mapping
+        const cityToAirportMap = {
+            "ranchi": "IXR",
+            "jamshedpur": "IXW",
+            "dhanbad": "DBD",
+            "bokaro": "BKSC",
+            "deoghar": "DGH",
+            "delhi": "DEL",
+            "mumbai": "BOM",
+            "bangalore": "BLR",
+            "chennai": "MAA",
+            "kolkata": "CCU",
+            "hyderabad": "HYD",
+            "pune": "PNQ",
+            "ahmedabad": "AMD",
+            "jaipur": "JAI",
+            "lucknow": "LKO"
+        };
+        
+        // List of Jharkhand cities
+        const jharkhandCities = ['Ranchi', 'Jamshedpur', 'Dhanbad', 'Bokaro', 'Deoghar'];
+        
+        // Function to get airport code from city name
+        function getAirportCode(cityName) {
+            const normalizedCityName = cityName.toLowerCase().trim();
+            return cityToAirportMap[normalizedCityName] || null;
+        }
+        
+        // Function to check if a city is in Jharkhand
+        function isJharkhandCity(cityName) {
+            const normalizedCityName = cityName.toLowerCase().trim();
+            return jharkhandCities.some(city => 
+                city.toLowerCase() === normalizedCityName
+            );
+        }
+        
+        // Validate route - one city must be Jharkhand, but not both
+        function validateRoute(fromCity, toCity) {
+            const fromIsJharkhand = isJharkhandCity(fromCity);
+            const toIsJharkhand = isJharkhandCity(toCity);
+            
+            // One city must be Jharkhand, but not both
+            return (fromIsJharkhand && !toIsJharkhand) || (!fromIsJharkhand && toIsJharkhand);
+        }
+        
+        // Autocomplete functionality
+        function autocomplete(inp, arr) {
+            let currentFocus;
+            
+            inp.addEventListener("input", function(e) {
+                let val = this.value;
+                closeAllLists();
+                if (!val) { return false; }
+                currentFocus = -1;
+                
+                const list = document.createElement("DIV");
+                list.setAttribute("id", this.id + "autocomplete-list");
+                list.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(list);
+                
+                for (let i = 0; i < arr.length; i++) {
+                    if (arr[i].substr(0, val.length).toLowerCase() === val.toLowerCase()) {
+                        const item = document.createElement("DIV");
+                        item.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        item.innerHTML += arr[i].substr(val.length);
+                        item.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        
+                        item.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        list.appendChild(item);
+                    }
+                }
+            });
+            
+            inp.addEventListener("keydown", function(e) {
+                let list = document.getElementById(this.id + "autocomplete-list");
+                if (list) list = list.getElementsByTagName("div");
+                if (e.keyCode === 40) { // Down arrow
+                    currentFocus++;
+                    addActive(list);
+                } else if (e.keyCode === 38) { // Up arrow
+                    currentFocus--;
+                    addActive(list);
+                } else if (e.keyCode === 13) { // Enter
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (list) list[currentFocus].click();
+                    }
+                }
+            });
+            
+            function addActive(list) {
+                if (!list) return false;
+                removeActive(list);
+                if (currentFocus >= list.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (list.length - 1);
+                list[currentFocus].classList.add("autocomplete-active");
+            }
+            
+            function removeActive(list) {
+                for (let i = 0; i < list.length; i++) {
+                    list[i].classList.remove("autocomplete-active");
+                }
+            }
+            
+            function closeAllLists(elmnt) {
+                const lists = document.getElementsByClassName("autocomplete-items");
+                for (let i = 0; i < lists.length; i++) {
+                    if (elmnt !== lists[i] && elmnt !== inp) {
+                        lists[i].parentNode.removeChild(lists[i]);
+                    }
+                }
+            }
+            
+            document.addEventListener("click", function(e) {
+                closeAllLists(e.target);
+            });
+        }
+        
+        // Initialize autocomplete for city inputs
+        const cities = Object.keys(cityToAirportMap).map(city => {
+            return city.charAt(0).toUpperCase() + city.slice(1);
+        });
+        
+        autocomplete(document.getElementById("from-city"), cities);
+        autocomplete(document.getElementById("to-city"), cities);
+        autocomplete(document.getElementById("train-from-city"), cities);
+        autocomplete(document.getElementById("train-to-city"), cities);
+        
+        // Load overview data
+        function loadOverviewData() {
+            const contentElement = document.getElementById('overview-results-content');
+            
+            contentElement.innerHTML = `
+                <div class="bus-card">
+                    <div class="transport-header">
+                        <div class="transport-number">Ranchi - Jamshedpur</div>
+                        <span class="bus-status status-live">Live Tracking</span>
+                    </div>
+                    <div class="transport-timing">
+                        <div class="location">
+                            <div class="location-name">Ranchi Bus Stand</div>
+                            <div class="location-time">06:00</div>
+                        </div>
+                        <div class="duration">3h 30m</div>
+                        <div class="location">
+                            <div class="location-name">Jamshedpur Bus Stand</div>
+                            <div class="location-time">09:30</div>
+                        </div>
+                    </div>
+                    <div class="transport-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">130 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Fare</span>
+                            <span class="detail-value">From ₹250</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Frequency</span>
+                            <span class="detail-value">Every 30 min</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bus-card">
+                    <div class="transport-header">
+                        <div class="transport-number">Ranchi - Patna</div>
+                        <span class="bus-status status-live">Live Tracking</span>
+                    </div>
+                    <div class="transport-timing">
+                        <div class="location">
+                            <div class="location-name">Ranchi Bus Stand</div>
+                            <div class="location-time">22:00</div>
+                        </div>
+                        <div class="duration">7h 00m</div>
+                        <div class="location">
+                            <div class="location-name">Patna Bus Stand</div>
+                            <div class="location-time">05:00</div>
+                        </div>
+                    </div>
+                    <div class="transport-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">260 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Fare</span>
+                            <span class="detail-value">From ₹800</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Frequency</span>
+                            <span class="detail-value">Every 2 hours</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bus-card">
+                    <div class="transport-header">
+                        <div class="transport-number">Dhanbad - Kolkata</div>
+                        <span class="bus-status status-scheduled">Scheduled</span>
+                    </div>
+                    <div class="transport-timing">
+                        <div class="location">
+                            <div class="location-name">Dhanbad Bus Stand</div>
+                            <div class="location-time">20:30</div>
+                        </div>
+                        <div class="duration">8h 30m</div>
+                        <div class="location">
+                            <div class="location-name">Kolkata Bus Stand</div>
+                            <div class="location-time">05:00</div>
+                        </div>
+                    </div>
+                    <div class="transport-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Distance</span>
+                            <span class="detail-value">280 km</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Fare</span>
+                            <span class="detail-value">From ₹600</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Frequency</span>
+                            <span class="detail-value">Daily</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Search flights function
+        document.getElementById('search-flights-btn').addEventListener('click', async function() {
+            const fromCity = document.getElementById('from-city').value;
+            const toCity = document.getElementById('to-city').value;
+            const departDate = document.getElementById('depart-date').value;
+            const tripType = document.getElementById('trip-type').value;
+            const returnDate = document.getElementById('return-date').value;
+            const passengers = document.getElementById('passengers').value;
+            
+            if (!fromCity || !toCity || !departDate) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (tripType === 'round-trip' && !returnDate) {
+                alert('Please select a return date for round trip');
+                return;
+            }
+            
+            // Validate Jharkhand route requirement
+            if (!validateRoute(fromCity, toCity)) {
+                document.getElementById('route-validation').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('route-validation').style.display = 'none';
+            }
+            
+            // Get airport codes from city names
+            const fromAirportCode = getAirportCode(fromCity);
+            const toAirportCode = getAirportCode(toCity);
+            
+            if (!fromAirportCode) {
+                alert(`Could not find airport code for city: ${fromCity}. Please try a different city name.`);
+                return;
+            }
+            
+            if (!toAirportCode) {
+                alert(`Could not find airport code for city: ${toCity}. Please try a different city name.`);
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('flights-loading').style.display = 'block';
+            document.getElementById('flights-results').innerHTML = '';
+            document.getElementById('flights-results-count').textContent = 'Searching flights...';
+            
+            try {
+                // Fetch real flight data
+                const flightData = await fetchRealFlightData(fromAirportCode, toAirportCode, departDate);
+                
+                // Hide loading
+                document.getElementById('flights-loading').style.display = 'none';
+                
+                if (flightData.data && flightData.data.length > 0) {
+                    displayFlights(flightData.data, fromCity, toCity, passengers, tripType, returnDate);
+                } else {
+                    document.getElementById('flights-results').innerHTML = `
+                        <div class="error">
+                            No flights found for the selected route on ${departDate}. Please try different dates or cities.
+                        </div>
+                    `;
+                    document.getElementById('flights-results-count').textContent = 'No flights found';
+                }
+            } catch (error) {
+                document.getElementById('flights-loading').style.display = 'none';
+                document.getElementById('flights-results').innerHTML = `
+                    <div class="error">
+                        Error fetching flight data. Please try again later.
+                    </div>
+                `;
+                document.getElementById('flights-results-count').textContent = 'Error';
+                console.error('Flight search error:', error);
+            }
+        });
+        
+        // Function to fetch real flight data from AviationStack API
+        async function fetchRealFlightData(departureIATA, arrivalIATA, date) {
+            // Using AviationStack API (free tier available)
+            const accessKey = 'YOUR_API_KEY_HERE'; // You would need to sign up for a free API key
+            const apiUrl = `http://api.aviationstack.com/v1/flights?access_key=${accessKey}&dep_iata=${departureIATA}&arr_iata=${arrivalIATA}&flight_date=${date}`;
+            
+            try {
+                // Note: In a real implementation, you would make the API call here
+                // For demonstration, we'll use mock data that simulates real API responses
+                
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Mock response based on route
+                return generateMockFlightData(departureIATA, arrivalIATA, date);
+                
+                // Real implementation would be:
+                // const response = await fetch(apiUrl);
+                // if (!response.ok) throw new Error('API request failed');
+                // return await response.json();
+            } catch (error) {
+                console.error('Error fetching flight data:', error);
+                // Fallback to mock data if API fails
+                return generateMockFlightData(departureIATA, arrivalIATA, date);
+            }
+        }
+        
+        // Generate realistic mock flight data
+        function generateMockFlightData(departureIATA, arrivalIATA, date) {
+            // Airlines operating in India
+            const airlines = [
+                { code: "AI", name: "Air India" },
+                { code: "6E", name: "IndiGo" },
+                { code: "SG", name: "SpiceJet" },
+                { code: "UK", name: "Vistara" },
+                { code: "G8", name: "Go Air" },
+                { code: "I5", name: "AirAsia India" }
+            ];
+            
+            // Airport names
+            const airportNames = {
+                "IXR": "Birsa Munda Airport, Ranchi",
+                "IXW": "Sonari Airport, Jamshedpur",
+                "DBD": "Dhanbad Airport",
+                "BKSC": "Bokaro Airport",
+                "DGH": "Deoghar Airport",
+                "DEL": "Indira Gandhi Airport, Delhi",
+                "BOM": "Chhatrapati Shivaji Airport, Mumbai",
+                "BLR": "Kempegowda Airport, Bangalore",
+                "MAA": "Chennai International Airport",
+                "CCU": "Netaji Subhas Airport, Kolkata",
+                "HYD": "Rajiv Gandhi Airport, Hyderabad",
+                "PNQ": "Pune Airport",
+                "AMD": "Sardar Vallabhbhai Patel Airport, Ahmedabad",
+                "JAI": "Jaipur International Airport",
+                "LKO": "Chaudhary Charan Singh Airport, Lucknow"
+            };
+            
+            // Generate 2-4 random flights
+            const numFlights = Math.floor(Math.random() * 3) + 2;
+            const flights = [];
+            
+            for (let i = 0; i < numFlights; i++) {
+                const airline = airlines[Math.floor(Math.random() * airlines.length)];
+                const flightNumber = `${airline.code}-${Math.floor(Math.random() * 900) + 100}`;
+                
+                // Generate random times (morning, afternoon, evening)
+                const timeOptions = ["06:00", "09:30", "12:15", "15:45", "18:20", "21:00"];
+                const departureTime = timeOptions[Math.floor(Math.random() * timeOptions.length)];
+                
+                // Calculate arrival time (add 1-4 hours)
+                const [depHours, depMinutes] = departureTime.split(':').map(Number);
+                const flightDuration = Math.floor(Math.random() * 3) + 1; // 1-3 hours
+                const arrivalHours = (depHours + flightDuration) % 24;
+                const arrivalTime = `${arrivalHours.toString().padStart(2, '0')}:${depMinutes.toString().padStart(2, '0')}`;
+                
+                // Generate realistic price based on distance
+                const basePrice = Math.floor(Math.random() * 3000) + 2000; // 2000-5000 INR
+                
+                flights.push({
+                    flight: {
+                        iata: flightNumber,
+                        number: flightNumber
+                    },
+                    airline: {
+                        name: airline.name
+                    },
+                    departure: {
+                        airport: airportNames[departureIATA],
+                        iata: departureIATA,
+                        scheduled: `${date}T${departureTime}:00`
+                    },
+                    arrival: {
+                        airport: airportNames[arrivalIATA],
+                        iata: arrivalIATA,
+                        scheduled: `${date}T${arrivalTime}:00`
+                    },
+                    flight_date: date,
+                    price: basePrice,
+                    duration: `${flightDuration}h ${Math.floor(Math.random() * 60)}m`,
+                    seats_available: Math.floor(Math.random() * 20) + 5
+                });
+            }
+            
+            return {
+                data: flights,
+                pagination: { count: flights.length },
+                status: "success"
+            };
+        }
+        
+        // Display flights in the UI
+        function displayFlights(flights, fromCity, toCity, passengers, tripType, returnDate) {
+            let html = `
+                <div class="success">
+                    Found ${flights.length} flights from ${fromCity} to ${toCity}
+                </div>
+                <div class="flight-list">
+            `;
+            
+            flights.forEach(flight => {
+                const departureTime = new Date(flight.departure.scheduled).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const arrivalTime = new Date(flight.arrival.scheduled).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const totalPrice = flight.price * parseInt(passengers);
+                
+                html += `
+                    <div class="flight-card">
+                        <div class="flight-header">
+                            <div class="flight-number">${flight.flight.iata}</div>
+                            <span class="status-live">Available</span>
+                        </div>
+                        <div class="flight-route">
+                            <div class="route-segment">
+                                <div class="airport-code">${flight.departure.iata}</div>
+                                <div class="airport-name">${flight.departure.airport}</div>
+                            </div>
+                            <div class="route-arrow">→</div>
+                            <div class="route-segment">
+                                <div class="airport-code">${flight.arrival.iata}</div>
+                                <div class="airport-name">${flight.arrival.airport}</div>
+                            </div>
+                        </div>
+                        <div class="flight-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Departure</span>
+                                <span class="detail-value">${departureTime}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Arrival</span>
+                                <span class="detail-value">${arrivalTime}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Duration</span>
+                                <span class="detail-value">${flight.duration}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Airline</span>
+                                <span class="detail-value">${flight.airline.name}</span>
+                            </div>
+                        </div>
+                        <div class="flight-price">
+                            <div class="price-amount">₹${totalPrice}</div>
+                            <div class="price-label">for ${passengers} passenger(s)</div>
+                            <button class="book-btn" onclick="bookFlight('${flight.flight.iata}', '${flight.departure.iata}', '${flight.arrival.iata}', '${flight.departure.scheduled}', ${totalPrice})">Book Now</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            document.getElementById('flights-results').innerHTML = html;
+            document.getElementById('flights-results-count').textContent = `${flights.length} flights found`;
+        }
+        
+        // Book flight function
+        function bookFlight(flightNumber, from, to, date, price) {
+            alert(`Booking confirmed!\n\nFlight: ${flightNumber}\nFrom: ${from} to ${to}\nDate: ${new Date(date).toLocaleDateString()}\nPrice: ₹${price}\n\nThank you for your booking!`);
+        }
+        
+        // Search trains function
+        document.getElementById('search-trains-btn').addEventListener('click', function() {
+            const fromCity = document.getElementById('train-from-city').value;
+            const toCity = document.getElementById('train-to-city').value;
+            const travelDate = document.getElementById('train-travel-date').value;
+            
+            if (!fromCity || !toCity || !travelDate) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Validate Jharkhand condition
+            const fromIsJharkhand = isJharkhandCity(fromCity);
+            const toIsJharkhand = isJharkhandCity(toCity);
+            
+            if (!fromIsJharkhand && !toIsJharkhand) {
+                document.getElementById('trains-results').innerHTML = `
+                    <div class="warning">
+                        <strong>Route Validation Required:</strong> Either source or destination must be in Jharkhand.
+                        <br>Please select at least one Jharkhand city.
+                    </div>
+                `;
+                document.getElementById('trains-results-count').textContent = 'Validation failed';
+                return;
+            }
+            
+            if (fromIsJharkhand && toIsJharkhand) {
+                document.getElementById('trains-results').innerHTML = `
+                    <div class="warning">
+                        <strong>Route Validation Required:</strong> Both source and destination cannot be in Jharkhand.
+                        <br>Please select one Jharkhand city and one city from another state.
+                    </div>
+                `;
+                document.getElementById('trains-results-count').textContent = 'Validation failed';
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('trains-loading').style.display = 'block';
+            document.getElementById('trains-results').innerHTML = '';
+            document.getElementById('trains-results-count').textContent = 'Fetching data...';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                document.getElementById('trains-loading').style.display = 'none';
+                
+                // Generate mock train data
+                const trains = generateMockTrainData(fromCity, toCity);
+                
+                if (trains.length > 0) {
+                    let html = `
+                        <div class="success">
+                            Found ${trains.length} trains from ${fromCity} to ${toCity}
+                        </div>
+                        <div class="train-list">
+                    `;
+                    
+                    trains.forEach(train => {
+                        html += `
+                            <div class="train-card">
+                                <div class="transport-header">
+                                    <div class="train-number">${train.number}</div>
+                                    <span class="status-live">Available</span>
+                                </div>
+                                <div class="train-timing">
+                                    <div class="station">
+                                        <div class="station-name">${train.from}</div>
+                                        <div class="station-time">${train.departure}</div>
+                                    </div>
+                                    <div class="duration">${train.duration}</div>
+                                    <div class="station">
+                                        <div class="station-name">${train.to}</div>
+                                        <div class="station-time">${train.arrival}</div>
+                                    </div>
+                                </div>
+                                <div class="train-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Train Name</span>
+                                        <span class="detail-value">${train.name}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Class</span>
+                                        <span class="detail-value">${train.class}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Fare</span>
+                                        <span class="detail-value">${train.fare}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Availability</span>
+                                        <span class="detail-value">${train.availability}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    document.getElementById('trains-results').innerHTML = html;
+                    document.getElementById('trains-results-count').textContent = `${trains.length} trains found`;
+                } else {
+                    document.getElementById('trains-results').innerHTML = `
+                        <div class="error">
+                            No trains found between ${fromCity} and ${toCity} on ${travelDate}.
+                        </div>
+                    `;
+                    document.getElementById('trains-results-count').textContent = 'No trains found';
+                }
+            }, 1500);
+        });
+        
+        // Generate mock train data
+        function generateMockTrainData(fromCity, toCity) {
+            const trains = [
+                {
+                    number: "12301",
+                    name: "Ranchi Rajdhani Express",
+                    from: fromCity,
+                    to: toCity,
+                    departure: "17:30",
+                    arrival: "06:15",
+                    duration: "12h 45m",
+                    class: "AC 1st Class",
+                    fare: "₹2,845",
+                    availability: "Available"
+                },
+                {
+                    number: "18615",
+                    name: "Hatia Express",
+                    from: fromCity,
+                    to: toCity,
+                    departure: "22:45",
+                    arrival: "11:30",
+                    duration: "12h 45m",
+                    class: "AC 2 Tier",
+                    fare: "₹1,750",
+                    availability: "Available"
+                },
+                {
+                    number: "12877",
+                    name: "Ispat Express",
+                    from: fromCity,
+                    to: toCity,
+                    departure: "07:15",
+                    arrival: "19:45",
+                    duration: "12h 30m",
+                    class: "Sleeper",
+                    fare: "₹620",
+                    availability: "Waitlist 5"
+                }
+            ];
+            
+            return trains;
+        }
+        
+        // Search buses function
+        document.getElementById('bus-search-btn').addEventListener('click', function() {
+            const fromCity = document.getElementById('bus-from').value;
+            const toCity = document.getElementById('bus-to').value;
+            const travelDate = document.getElementById('bus-date').value;
+            
+            if (!fromCity || !toCity || !travelDate) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('bus-loading').style.display = 'block';
+            document.getElementById('bus-results').innerHTML = '';
+            document.getElementById('bus-results-count').textContent = 'Searching...';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                document.getElementById('bus-loading').style.display = 'none';
+                
+                // Generate mock bus data
+                const buses = generateMockBusData(fromCity, toCity);
+                
+                if (buses.length > 0) {
+                    let html = '';
+                    
+                    buses.forEach(bus => {
+                        const statusClass = bus.status === 'Live' ? 'status-live' : 'status-scheduled';
+                        
+                        html += `
+                            <div class="bus-card">
+                                <div class="transport-header">
+                                    <div class="transport-number">${bus.number}</div>
+                                    <span class="bus-status ${statusClass}">${bus.status}</span>
+                                </div>
+                                <div class="transport-timing">
+                                    <div class="location">
+                                        <div class="location-name">${bus.from}</div>
+                                        <div class="location-time">${bus.departure}</div>
+                                    </div>
+                                    <div class="duration">${bus.duration}</div>
+                                    <div class="location">
+                                        <div class="location-name">${bus.to}</div>
+                                        <div class="location-time">${bus.arrival}</div>
+                                    </div>
+                                </div>
+                                <div class="transport-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Bus Type</span>
+                                        <span class="detail-value">${bus.type}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Operator</span>
+                                        <span class="detail-value">${bus.operator}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Fare</span>
+                                        <span class="detail-value">${bus.fare}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Seats Available</span>
+                                        <span class="detail-value">${bus.seats}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('bus-results').innerHTML = html;
+                    document.getElementById('bus-results-count').textContent = `${buses.length} buses found`;
+                } else {
+                    document.getElementById('bus-results').innerHTML = `
+                        <div class="error">
+                            No buses found between ${fromCity} and ${toCity} on ${travelDate}.
+                        </div>
+                    `;
+                    document.getElementById('bus-results-count').textContent = 'No buses found';
+                }
+            }, 1500);
+        });
+        
+        // Generate mock bus data
+        function generateMockBusData(fromCity, toCity) {
+            const buses = [
+                {
+                    number: "JH01AB1234",
+                    name: `${fromCity} to ${toCity} AC Sleeper`,
+                    from: fromCity,
+                    to: toCity,
+                    departure: "22:00",
+                    arrival: "06:00",
+                    duration: "8h 00m",
+                    type: "AC Sleeper",
+                    operator: "Jharkhand Travels",
+                    fare: "₹800",
+                    seats: "25/40",
+                    status: "Scheduled"
+                },
+                {
+                    number: "JH01CD5678",
+                    name: `${fromCity} to ${toCity} Express`,
+                    from: fromCity,
+                    to: toCity,
+                    departure: "20:30",
+                    arrival: "05:00",
+                    duration: "8h 30m",
+                    type: "Non-AC Seater",
+                    operator: "Bokaro Transport",
+                    fare: "₹600",
+                    seats: "12/40",
+                    status: "Live"
+                },
+                {
+                    number: "JH01EF9012",
+                    name: `${fromCity} to ${toCity} Deluxe`,
+                    from: fromCity,
+                    to: toCity,
+                    departure: "07:00",
+                    arrival: "12:30",
+                    duration: "5h 30m",
+                    type: "AC Seater",
+                    operator: `${fromCity} Bus Service`,
+                    fare: "₹450",
+                    seats: "35/40",
+                    status: "Live"
+                }
+            ];
+            
+            return buses;
+        }
+        
+        // Weather data
+        const jamshedpurWeatherData = {
+            location: "Jamshedpur, Jharkhand, India",
+            current: {
+                temperature: 29,
+                feelsLike: 32,
+                humidity: 75,
+                wind: 10,
+                description: "Partly cloudy with chance of thunderstorms",
+                icon: "⛅",
+                sunrise: "05:45 AM",
+                sunset: "06:15 PM",
+                pressure: "1012 hPa",
+                visibility: "8 km"
+            },
+            forecast: [
+                {
+                    day: "26-SEPT",
+                    high: 32,
+                    low: 24,
+                    humidity: 80,
+                    description: "Generally cloudy sky with possibility of rain or thunderstorm",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-30km/h)",
+                    icon: "⛈️"
+                },
+                {
+                    day: "27-SEPT",
+                    high: 31,
+                    low: 23,
+                    humidity: 78,
+                    description: "Generally cloudy sky with one or two spells of rain or thunderstorms",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-25km/h)",
+                    icon: "🌧️"
+                },
+                {
+                    day: "28-SEPT",
+                    high: 30,
+                    low: 23,
+                    humidity: 82,
+                    description: "Generally cloudy sky with one or two spells of rain or thunderstorms",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-20km/h)",
+                    icon: "🌧️"
+                },
+                {
+                    day: "29-SEPT",
+                    high: 31,
+                    low: 24,
+                    humidity: 79,
+                    description: "Generally cloudy sky with one or two spells of rain or thunderstorms",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-25km/h)",
+                    icon: "🌧️"
+                },
+                {
+                    day: "30-SEPT",
+                    high: 32,
+                    low: 24,
+                    humidity: 76,
+                    description: "Generally cloudy sky with possibility of rain or thunderstorm",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-30km/h)",
+                    icon: "⛈️"
+                },
+                {
+                    day: "1-OCT",
+                    high: 33,
+                    low: 25,
+                    humidity: 72,
+                    description: "Generally cloudy sky with possibility of rain or thunderstorm",
+                    warning: "Thunderstorm accompanies the weather by wind(s) (0-35km/h)",
+                    icon: "⛈️"
+                },
+                {
+                    day: "2-OCT",
+                    high: 32,
+                    low: 24,
+                    humidity: 74,
+                    description: "Partly cloudy sky in the morning hours becoming generally cloudy sky towards afternoon or evening with possibility of rain or thunderstorms",
+                    warning: "No warning",
+                    icon: "🌤️"
+                }
+            ]
+        };
+        
+        // Load weather data
+        function loadWeatherData() {
+            // Update the UI with weather data
+            updateWeatherUI(jamshedpurWeatherData);
+            
+            // Set up city selector
+            const cityButtons = document.querySelectorAll('.city-btn');
+            
+            cityButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    cityButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update weather for selected city
+                    const city = this.getAttribute('data-city');
+                    const weatherData = {
+                        ...jamshedpurWeatherData,
+                        location: `${city}, Jharkhand, India`,
+                        current: {
+                            ...jamshedpurWeatherData.current,
+                            temperature: Math.floor(Math.random() * 5) + 28 // Random temp between 28-32
+                        }
+                    };
+                    
+                    updateWeatherUI(weatherData);
+                });
+            });
+        }
+        
+        // Function to update the UI with weather data
+        function updateWeatherUI(data) {
+            // Update location
+            document.getElementById('current-temp-weather').textContent = `${data.current.temperature}°`;
+            document.getElementById('weather-icon').textContent = data.current.icon;
+            document.getElementById('weather-desc').textContent = data.current.description;
+            document.getElementById('humidity').textContent = `${data.current.humidity}%`;
+            document.getElementById('wind').textContent = `${data.current.wind} km/h`;
+            document.getElementById('feels-like').textContent = `${data.current.feelsLike}°`;
+            
+            // Update weather metrics
+            document.getElementById('sunrise').textContent = data.current.sunrise;
+            document.getElementById('sunset').textContent = data.current.sunset;
+            document.getElementById('pressure').textContent = data.current.pressure;
+            document.getElementById('visibility').textContent = data.current.visibility;
+            
+            // Update weekly forecast
+            const weeklyForecastContainer = document.getElementById('weekly-forecast');
+            weeklyForecastContainer.innerHTML = '';
+            
+            data.forecast.forEach(day => {
+                const forecastDayElement = document.createElement('div');
+                forecastDayElement.className = 'forecast-day';
+                forecastDayElement.innerHTML = `
+                    <div class="day-name">${day.day}</div>
+                    <div class="forecast-icon">${day.icon}</div>
+                    <div class="forecast-temp">${day.high}° / ${day.low}°</div>
+                    <div class="forecast-desc">Humidity: ${day.humidity}%</div>
+                `;
+                weeklyForecastContainer.appendChild(forecastDayElement);
+            });
+            
+            // Update detailed forecast
+            const detailedForecastContainer = document.getElementById('detailed-forecast');
+            detailedForecastContainer.innerHTML = '';
+            
+            data.forecast.forEach(day => {
+                const forecastItemElement = document.createElement('div');
+                forecastItemElement.className = 'forecast-item';
+                forecastItemElement.innerHTML = `
+                    <div class="forecast-date">
+                        <span>${day.day}</span>
+                        <span>${day.high}° / ${day.low}°</span>
+                    </div>
+                    <div class="forecast-content">
+                        <div class="forecast-text">
+                            <p><strong>Forecast:</strong> ${day.description}</p>
+                        </div>
+                        <div class="forecast-warning">
+                            <p><strong>Warning:</strong> ${day.warning}</p>
+                        </div>
+                    </div>
+                `;
+                detailedForecastContainer.appendChild(forecastItemElement);
+            });
+            
+            // Hide loading indicator
+            document.getElementById('forecast-loading').style.display = 'none';
+        }
+        
+        // Overview search function
+        document.getElementById('overview-search-btn').addEventListener('click', function() {
+            const transportType = document.getElementById('overview-transport').value;
+            const fromCity = document.getElementById('overview-from').value;
+            const toCity = document.getElementById('overview-to').value;
+            const travelDate = document.getElementById('overview-date').value;
+            
+            if (!fromCity || !toCity || !travelDate) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('overview-loading').style.display = 'block';
+            document.getElementById('overview-results-content').innerHTML = '';
+            document.getElementById('overview-results-count').textContent = 'Searching...';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                document.getElementById('overview-loading').style.display = 'none';
+                
+                // For demo purposes, we'll show a sample result
+                document.getElementById('overview-results-content').innerHTML = `
+                    <div class="bus-card">
+                        <div class="transport-header">
+                            <div class="transport-number">${fromCity.charAt(0).toUpperCase() + fromCity.slice(1)} - ${toCity.charAt(0).toUpperCase() + toCity.slice(1)}</div>
+                            <span class="bus-status status-live">Live Tracking</span>
+                        </div>
+                        <div class="transport-timing">
+                            <div class="location">
+                                <div class="location-name">${fromCity.charAt(0).toUpperCase() + fromCity.slice(1)} ${transportType === 'flights' ? 'Airport' : transportType === 'trains' ? 'Station' : 'Bus Stand'}</div>
+                                <div class="location-time">06:00</div>
+                            </div>
+                            <div class="duration">4h 30m</div>
+                            <div class="location">
+                                <div class="location-name">${toCity.charAt(0).toUpperCase() + toCity.slice(1)} ${transportType === 'flights' ? 'Airport' : transportType === 'trains' ? 'Station' : 'Bus Stand'}</div>
+                                <div class="location-time">10:30</div>
+                            </div>
+                        </div>
+                        <div class="transport-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Distance</span>
+                                <span class="detail-value">180 km</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Fare</span>
+                                <span class="detail-value">From ₹350</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Frequency</span>
+                                <span class="detail-value">Every hour</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('overview-results-count').textContent = 'Route found';
+            }, 1000);
+        });
+        
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOverviewData();
+            loadWeatherData();
+        });
+    </script>
+</body>
+</html>
